@@ -1,79 +1,174 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+Firebase Authentication and Product Management
+Description
+This app demonstrates a simple yet functional example of Firebase integration for authentication, along with a product management system. The app includes the following features:
 
-# Getting Started
+Firebase Authentication:
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+Users can sign up using an email and password.
+Users can log in and log out securely.
+Firebase ensures robust backend support for user authentication.
 
-## Step 1: Start the Metro Server
+Home Screen:
+Displays a list of products fetched from a predefined dataset or backend.
+Search functionality to find products by name or other attributes.
+Delete functionality to remove products from the list.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+Product Details Screen:
+Displays detailed information about a selected product, including images, descriptions, prices, etc.
+User-friendly UI for better product insights.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+State Management:
+Redux is used for centralized state management to manage user authentication and product data efficiently.
 
-```bash
-# using npm
-npm start
+Features
+1. Firebase Authentication
+User sign-up with email and password.
+User login/logout functionality.
+Secure user session management.
 
-# OR using Yarn
-yarn start
-```
+2. Redux Integration
+Centralized state management for authentication and product data.
+Separate slices for authentication and product management.
 
-## Step 2: Start your Application
+3. Home Screen
+Product Listing: Displays a scrollable list of products.
+Search: Real-time product search functionality.
+Delete: Ability to remove products from the list with confirmation.
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+4. Product Details Screen
+Detailed view of selected product information.
+Tech Stack
+Frontend: React Native
+Backend: Firebase Authentication, Firebase Firestore (optional for dynamic product data)
+State Management: Redux Toolkit
+UI Library: React Native Elements/Custom Components
 
-### For Android
+Installation and Setup
+1. Clone the Repository
 
-```bash
-# using npm
-npm run android
+git clone https://github.com/your-repo-name.git
+cd your-repo-name
 
-# OR using Yarn
-yarn android
-```
+2. Install Dependencies
+npm install
 
-### For iOS
+3. Set Up Firebase
+Follow the steps outlined earlier to configure Firebase for Android and iOS.
 
-```bash
-# using npm
-npm run ios
+4. Set Up Redux
+Install Redux and Redux Toolkit:
+npm install @reduxjs/toolkit react-redux
+Create a redux folder in your project:
 
-# OR using Yarn
-yarn ios
-```
+src/redux/
+├── store.js
+├── slices/
+    ├── authSlice.js
+    └── productSlice.js
+    
+Configure the store in store.js:
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './slices/authSlice';
+import productReducer from './slices/productSlice';
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+const store = configureStore({
+  reducer: {
+    auth: authReducer,
+    product: productReducer,
+  },
+});
+export default store;
 
-## Step 3: Modifying your App
+Set up authSlice.js for authentication:
+import { createSlice } from '@reduxjs/toolkit';
 
-Now that you have successfully run the app, let's modify it.
+const initialState = {
+  user: null,
+};
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+    clearUser: (state) => {
+      state.user = null;
+    },
+  },
+});
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+export const { setUser, clearUser } = authSlice.actions;
+export default authSlice.reducer;
 
-## Congratulations! :tada:
+Wrap your app with the Redux Provider in App.js:
+import { Provider } from 'react-redux';
+import store from './src/redux/store';
 
-You've successfully run and modified your React Native App. :partying_face:
+const App = () => {
+  return (
+    <Provider store={store}>
+      {/* App Components */}
+    </Provider>
+  );
+};
 
-### Now what?
+export default App;
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+Usage
+1. Firebase Authentication
+Sign Up:
+import { auth } from './firebaseConfig';
 
-# Troubleshooting
+const signUp = async (email, password) => {
+  try {
+    await auth().createUserWithEmailAndPassword(email, password);
+    console.log('User account created!');
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+Log In:
+import { auth } from './firebaseConfig';
+import { setUser } from './redux/slices/authSlice';
+import { useDispatch } from 'react-redux';
 
-# Learn More
+const logIn = async (email, password) => {
+  const dispatch = useDispatch();
 
-To learn more about React Native, take a look at the following resources:
+  try {
+    const userCredential = await auth().signInWithEmailAndPassword(email, password);
+    dispatch(setUser(userCredential.user));
+    console.log('User signed in!');
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Log Out:
+import { auth } from './firebaseConfig';
+import { clearUser } from './redux/slices/authSlice';
+import { useDispatch } from 'react-redux';
+
+const logOut = async () => {
+  const dispatch = useDispatch();
+
+  try {
+    await auth().signOut();
+    dispatch(clearUser());
+    console.log('User signed out!');
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+2. Home Screen
+Browse the list of products.
+Use the search bar to filter products.
+Delete products by swiping or using the delete button.
+
+3. Product Details Screen
+Tap on any product to view detailed information.
