@@ -8,6 +8,7 @@ import {
   Alert,
   Dimensions,
   BackHandler,
+  StatusBar,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import {useNavigation} from '@react-navigation/native';
@@ -61,9 +62,10 @@ const AuthScreen: React.FC = () => {
 
     try {
       await auth().signInWithEmailAndPassword(email, password);
-      Alert.alert('Success', 'Logged in successfully!');
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error, 'error');
       Alert.alert('Login Failed', 'Invalid email or password');
+      setErrorMessage(error?.toString());
     } finally {
       setBtnLoading(false);
     }
@@ -110,6 +112,7 @@ const AuthScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
+      <StatusBar backgroundColor={'#fed250'} barStyle={'dark-content'} />
       <View style={styles.container}>
         <View style={styles.contentView}>
           <Text style={styles.title}>Welcome Back</Text>
@@ -125,7 +128,9 @@ const AuthScreen: React.FC = () => {
             keyboardType="email-address"
             placeholderTextColor="#a1a1a1"
           />
-          {emailInvalid && <Text style={styles.error}>Invalid Email</Text>}
+          {(emailError || emailInvalid) && (
+            <Text style={styles.error}>Invalid Email</Text>
+          )}
 
           <TextInput
             placeholder="Password"
@@ -137,6 +142,13 @@ const AuthScreen: React.FC = () => {
           />
           {passwordError && (
             <Text style={styles.error}>Password is required</Text>
+          )}
+          {errorMessage && (
+            <Text style={styles.error}>
+              {errorMessage.includes('invalid-credential')
+                ? 'Invalid credentials'
+                : 'Email already registered'}
+            </Text>
           )}
 
           <TouchableOpacity
@@ -161,7 +173,7 @@ const AuthScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#fed250',
   },
   container: {
     flex: 1,
@@ -170,7 +182,7 @@ const styles = StyleSheet.create({
   },
   contentView: {
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   title: {
     fontSize: 32,

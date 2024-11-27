@@ -3,9 +3,53 @@ type UserParams = {
   name: string;
 };
 
+type ProductData = {
+  availabilityStatus: 'Low Stock' | 'In Stock' | 'Out of Stock';
+  brand: string;
+  category: string;
+  description: string;
+  dimensions: {
+    depth: number;
+    height: number;
+    width: number;
+  };
+  discountPercentage: number;
+  id: number;
+  images: string[];
+  meta: {
+    barcode: string;
+    createdAt: string; // ISO Date string
+    qrCode: string;
+    updatedAt: string; // ISO Date string
+  };
+  minimumOrderQuantity: number;
+  price: number;
+  rating: number;
+  returnPolicy: string;
+  reviews: {
+    comment: string;
+    date: string; // ISO Date string
+    rating: number;
+    reviewerEmail: string;
+    reviewerName: string;
+  }[];
+  shippingInformation: string;
+  sku: string;
+  stock: number;
+  tags: string[];
+  thumbnail: string;
+  title: string;
+  warrantyInformation: string;
+  weight: number;
+};
+
 type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   ProductScreen: undefined;
 };
-export type {UserParams, RootStackParamList};
+
+type ReduxModel = {
+  ProductData: ProductData[];
+};
+export type {UserParams, ProductData, RootStackParamList, ReduxModel};

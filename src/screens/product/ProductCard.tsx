@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {
   View,
@@ -8,14 +9,16 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {ProductData} from '../../model';
 interface ItemCardProps {
-  item: any;
-  onDelete: (id: string) => void;
-  onEdit: (id: string) => void;
+  item: ProductData;
+  onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
 }
 
 const ProductCard: React.FC<ItemCardProps> = ({item, onDelete, onEdit}) => {
+  const navigation = useNavigation<any>();
   const handleDelete = () => {
     Alert.alert(
       'Delete Item',
@@ -29,17 +32,14 @@ const ProductCard: React.FC<ItemCardProps> = ({item, onDelete, onEdit}) => {
   };
 
   return (
-    <View style={styles.card}>
-      {/* <View style={styles.iconContainer}>
-        <TouchableOpacity
-          style={{backgroundColor: '#F2F2F2'}}
-          onPress={() => onEdit(item.id)}>
-          <Icon name="edit" size={24} color="#000" style={styles.icon} />
-        </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('ProductScreen', {id: item.id})}>
+      <View style={styles.iconContainer}>
         <TouchableOpacity onPress={handleDelete}>
           <Icon name="delete" size={24} color="#e60000" style={styles.icon} />
         </TouchableOpacity>
-      </View> */}
+      </View>
       <Image
         source={{
           uri:
@@ -68,7 +68,7 @@ const ProductCard: React.FC<ItemCardProps> = ({item, onDelete, onEdit}) => {
           </Text>
         ))}
       </ScrollView>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -8,17 +8,25 @@ import {
   StatusBar,
   StyleSheet,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
 import {getItems} from '../../services/itemApi';
-import {UserParams} from '../../model';
+import {ProductData} from '../../model';
 import ProductCard from '../product/ProductCard';
+import {colors} from '../../constant/color';
+import SearchComp from '../../components/SearchComp';
+import {useDispatch} from 'react-redux';
+import {getProductData} from '../../store/reduxSlices/product';
 
 const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
-  const [products, setproducts] = useState<UserParams[]>([]);
+  const [products, setproducts] = useState<ProductData[]>([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [filterProductData, setFilterProductData] = useState<ProductData[]>([]);
   const nav = useNavigation<any>();
+  const dispatch = useDispatch();
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -26,27 +34,24 @@ const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
   const fetchProducts = async () => {
     try {
       const data: any = await getItems();
-      // console.log(data.products[0], 'data in fetchitemes');
       setproducts(data?.products);
+      dispatch(getProductData(data?.products));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: Number) => {
     console.log(id, 'delete');
     try {
       const itemArr = products.filter(ele => ele.id !== id);
       setproducts(itemArr);
-      // const val = await deleteItem(id);
-      // console.log(val, 'val');
-      // fetchProducts();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const onUpdate = (id?: string) => {
+  const onUpdate = (id?: Number) => {
     const item = products.find(p => p.id == id);
     nav.navigate('ProductScreen', {item, onSubmit});
   };
@@ -64,6 +69,17 @@ const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
     }
 
     setproducts(productArr);
+  };
+  const onSearch = (text: string) => {
+    setSearchValue(text);
+    let filterData = products.filter(ele => {
+      return (
+        ele?.category?.toLowerCase()?.includes(text?.toLowerCase()) ||
+        ele?.title?.toLowerCase()?.includes(text?.toLowerCase()) ||
+        ele?.description?.toLowerCase()?.includes(text?.toLowerCase())
+      );
+    });
+    setFilterProductData(filterData);
   };
 
   const handleLogout = () => {
@@ -90,34 +106,55 @@ const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
     );
   };
   return (
-    <View>
+    <SafeAreaView style={{flex: 1}}>
+      <StatusBar
+        backgroundColor={colors.accentColor}
+        barStyle={'dark-content'}></StatusBar>
       <View style={styles.header}>
         <Text style={styles.heading} numberOfLines={1}>
-          {'Home'}
+          {'Royal Brothers'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          {/* <Icon name="exit-to-app" size={24} color="#000" /> */}
-          <Text>Logout</Text>
+          <Icon name="exit-to-app" size={24} color="#000" />
         </TouchableOpacity>
       </View>
+      <View style={{marginHorizontal: 10, marginVertical: 5}}>
+        <SearchComp
+          value={searchValue}
+          onChangeText={onSearch}
+          onClear={() => {
+            setSearchValue('');
+          }}
+          placeholder={'Search by title / category / description'}
+        />
+      </View>
       <FlatList
-        data={products}
-        keyExtractor={item => item.id}
+        data={searchValue ? filterProductData : products}
+        keyExtractor={item => item.id.toString()}
         renderItem={({item}) => (
           <ProductCard item={item} onDelete={handleDelete} onEdit={onUpdate} />
         )}
+        showsVerticalScrollIndicator={false}
+        style={styles.safeAreaContainer}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
+    marginHorizontal: 10,
+    padding: 10,
+  },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: 'black',
     // flex: 1,
   },
   actionButton: {
@@ -142,6 +179,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
+    backgroundColor: colors.accentColor,
+    padding: 10,
   },
 });
