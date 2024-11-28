@@ -7,8 +7,12 @@ import {RootStackParamList} from '../model';
 import HomeScreen from '../screens/home/HomeScreen';
 import ProductScreen from '../screens/product/ProductScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
+import OtpScreen from '../screens/auth/OtpScreen';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import ProfileScreen from '../screens/home/Profile';
 
 const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator();
 const Navigation = () => {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
 
@@ -22,8 +26,8 @@ const Navigation = () => {
 
   return (
     <NavigationContainer>
-      {user ? (
-        <Stack.Navigator initialRouteName="Home">
+      {true ? (
+        <Stack.Navigator initialRouteName="OtpScreen">
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -34,9 +38,24 @@ const Navigation = () => {
             component={ProductScreen}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="OtpScreen"
+            component={OtpScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="BottomTabs"
+            component={MyTabs}
+            options={{headerShown: false}}
+          />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator initialRouteName="Auth">
+        <Stack.Navigator initialRouteName="OtpScreen">
+          <Stack.Screen
+            name="OtpScreen"
+            component={OtpScreen}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="Auth"
             component={AuthScreen}
@@ -47,6 +66,23 @@ const Navigation = () => {
     </NavigationContainer>
   );
 };
+
+function MyTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+    </Tab.Navigator>
+  );
+}
 
 export default Navigation;
 

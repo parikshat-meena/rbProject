@@ -112,7 +112,7 @@ const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
         barStyle={'dark-content'}></StatusBar>
       <View style={styles.header}>
         <Text style={styles.heading} numberOfLines={1}>
-          {'Royal Brothers'}
+          {'Demo'}
         </Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Icon name="exit-to-app" size={24} color="#000" />

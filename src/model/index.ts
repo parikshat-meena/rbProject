@@ -47,6 +47,8 @@ type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   ProductScreen: undefined;
+  OtpScreen: undefined;
+  BottomTabs: undefined;
 };
 
 type ReduxModel = {
