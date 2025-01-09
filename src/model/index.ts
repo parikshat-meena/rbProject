@@ -49,9 +49,13 @@ type RootStackParamList = {
   ProductScreen: undefined;
   OtpScreen: undefined;
   BottomTabs: undefined;
+  StartUp: any;
+  employee: any;
+  createEmployee: any;
 };
 
 type ReduxModel = {
   ProductData: ProductData[];
+  UserData: any;
 };
 export type {UserParams, ProductData, RootStackParamList, ReduxModel};

@@ -20,6 +20,9 @@ import {colors} from '../../constant/color';
 import SearchComp from '../../components/SearchComp';
 import {useDispatch} from 'react-redux';
 import {getProductData} from '../../store/reduxSlices/product';
+import {getUserData} from '../../store/reduxSlices/user';
+import {removeItem} from '../../store/localStorage';
+import {USER} from '../../constant/local';
 
 const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
   const [products, setproducts] = useState<ProductData[]>([]);
@@ -95,10 +98,12 @@ const HomeScreen: React.FC<{navigation: any}> = ({navigation}) => {
         {
           text: 'Yes',
           onPress: () => {
-            auth()
-              .signOut()
-              .then(() => console.log('User signed out!'))
-              .catch(error => console.log('Error logging out:', error));
+            removeItem(USER);
+            dispatch(getUserData({}));
+            // auth()
+            //   .signOut()
+            //   .then(() => console.log('User signed out!'))
+            //   .catch(error => console.log('Error logging out:', error));
           },
         },
       ],

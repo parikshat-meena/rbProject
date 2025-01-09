@@ -13,6 +13,11 @@ import {
 import auth from '@react-native-firebase/auth';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {setItem} from '../../store/localStorage';
+import {USER} from '../../constant/local';
+import {useDispatch} from 'react-redux';
+import {getUserData} from '../../store/reduxSlices/user';
+import {getUsersInfo} from '../../services/itemApi';
 
 const {width} = Dimensions.get('screen');
 
@@ -29,18 +34,20 @@ const AuthScreen: React.FC = () => {
   const [btnLoading, setBtnLoading] = useState<boolean>(false);
   const navigation = useNavigation<any>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const dispatch = useDispatch<any>();
   // Email change handler
   const onEmailChange = (text: string) => {
     setEmail(text);
     setEmailError(false);
     setEmailInvalid(false);
+    setErrorMessage('');
   };
 
   // Password change handler
   const onPasswordChange = (text: string) => {
     setPassword(text);
     setPasswordError(false);
+    setErrorMessage('');
   };
 
   // Login handler
@@ -59,9 +66,16 @@ const AuthScreen: React.FC = () => {
     }
 
     setBtnLoading(true);
-
+    const params = {
+      email: email,
+      password: password,
+    };
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      const data = await getUsersInfo(params);
+      console.log(data, 'data res in api');
+      // await auth().signInWithEmailAndPassword(email, password);
+      setItem(USER, {email: email, password: password});
+      dispatch(getUserData({email: email, password: password}));
     } catch (error: any) {
       console.log(error, 'error');
       Alert.alert('Login Failed', 'Invalid email or password');
@@ -71,26 +85,26 @@ const AuthScreen: React.FC = () => {
     }
   };
 
-  const handleSignUp = () => {
-    if (!email) {
-      setEmailError(true);
-      return;
-    }
-    if (!validateEmail(email)) {
-      setEmailInvalid(true);
-      return;
-    }
-    if (!password) {
-      setPasswordError(true);
-      return;
-    }
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        Alert.alert('Success', 'User created successfully!');
-      })
-      .catch(error => setErrorMessage(error.message));
-  };
+  // const handleSignUp = () => {
+  //   if (!email) {
+  //     setEmailError(true);
+  //     return;
+  //   }
+  //   if (!validateEmail(email)) {
+  //     setEmailInvalid(true);
+  //     return;
+  //   }
+  //   if (!password) {
+  //     setPasswordError(true);
+  //     return;
+  //   }
+  //   auth()
+  //     .createUserWithEmailAndPassword(email, password)
+  //     .then(() => {
+  //       Alert.alert('Success', 'User created successfully!');
+  //     })
+  //     .catch(error => setErrorMessage(error.message));
+  // };
 
   const validateEmail = (email: string): boolean => {
     return EMAIL_REGEX.test(email.toLowerCase());
@@ -144,11 +158,7 @@ const AuthScreen: React.FC = () => {
             <Text style={styles.error}>Password is required</Text>
           )}
           {errorMessage && (
-            <Text style={styles.error}>
-              {errorMessage.includes('invalid-credential')
-                ? 'Invalid credentials'
-                : 'Email already registered'}
-            </Text>
+            <Text style={styles.error}>Invalid credentials</Text>
           )}
 
           <TouchableOpacity
@@ -158,12 +168,12 @@ const AuthScreen: React.FC = () => {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.button, styles.signUpButton]}
             onPress={handleSignUp}
             disabled={btnLoading}>
             <Text style={styles.signUpButtonText}>Sign Up</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </SafeAreaView>
